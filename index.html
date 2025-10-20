@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #101010, #222);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  .calculator {
+    background: #333;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #000;
+  }
+  input {
+    width: 500px;
+    height: 40px;
+    margin-bottom: 10px;
+    text-align: right;
+    font-size: 1.4rem;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: 'Share Tech Mono', monospace; /* Blocky digital font */
+    background: #111;
+    color: #0ff;
+    box-shadow: inset 0 0 10px #0ff3;
+  }
+  button {
+    width: 55px;
+    height: 55px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    background: #555;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  button:hover {
+    background: #777;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <input type="text" id="display" placeholder="0">
+  <div>
+    <button>(</button><button>)</button><button>C</button><button>/</button>
+  </div>
+  <div>
+    <button>7</button><button>8</button><button>9</button><button>*</button>
+  </div>
+  <div>
+    <button>4</button><button>5</button><button>6</button><button>-</button>
+  </div>
+  <div>
+    <button>1</button><button>2</button><button>3</button><button>+</button>
+  </div>
+  <div>
+    <button>0</button><button>.</button><button id="equals">=</button>
+  </div>
+</div>
+
+<audio id="secretAudio" src="audio.mp3"></audio>
+
+<script>
+const display = document.getElementById('display');
+const buttons = document.querySelectorAll('button');
+const audio = document.getElementById('secretAudio');
+const equals = document.getElementById('equals');
+
+const lyricsData = [
+  { time: 187, text: "♪ Ako'y alipin ng Pag-ibig mo..." },
+  { time: 194, text: "Handang ibigin ang isang tulad mo..." },
+  { time: 201, text: "Hangga't ang Puso mo'y saakin lang~" },
+  { time: 205, text: "Hindi kana malilinlang" },
+  { time: 209, text: "Ikaw ang ilaw sa dilim~" },
+  { time: 212, text: "♪ At ang liwanag ng mga bituin..." }
+];
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.textContent === 'C') display.value = '';
+    else if (btn.textContent === '=') calculate();
+    else display.value += btn.textContent;
+  });
+});
+
+function calculate() {
+  const expression = display.value;
+  if (expression.trim().toLowerCase() === "alex") {
+    showSecret();
+  } else {
+    try {
+      display.value = eval(expression);
+    } catch {
+      display.value = "Error";
+    }
+  }
+}
+
+display.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') calculate();
+});
+
+let typingInterval;
+let currentLyric = "";
+
+function typeText(text) {
+  clearInterval(typingInterval);
+  display.value = '';
+  let i = 0;
+  typingInterval = setInterval(() => {
+    display.value += text.charAt(i);
+    i++;
+    if (i >= text.length) clearInterval(typingInterval);
+  }, 70); // speed per character
+}
+
+function showSecret() {
+  audio.currentTime = 187;
+  audio.play();
+
+  audio.ontimeupdate = () => {
+    const current = audio.currentTime;
+    let newLyric = "";
+    for (let i = 0; i < lyricsData.length; i++) {
+      if (current >= lyricsData[i].time) {
+        newLyric = lyricsData[i].text;
+      }
+    }
+    // Only retype when the lyric changes
+    if (newLyric !== currentLyric) {
+      currentLyric = newLyric;
+      typeText(newLyric);
+    }
+  };
+}
+</script>
+
+</body>
+</html>
